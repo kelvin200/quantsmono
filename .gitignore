@@ -1,0 +1,14 @@
+*.ex5
+Files
+Images
+Include
+Libraries
+Logs
+Presets
+Profiles
+Scripts
+Services
+Shared\ Projects
+/Experts
+/Indicators
+/*.*

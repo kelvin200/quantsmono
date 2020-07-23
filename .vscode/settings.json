@@ -1,0 +1,20 @@
+{
+  "python.pythonPath": "C:\\Python38\\python.exe",
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/*.ex5": true,
+    "**/*.dll": true,
+    "**/*.dat": true
+  },
+  "C_Cpp.errorSquiggles": "Disabled",
+  "files.associations": {
+    "*.mqh": "cpp",
+    "*.mq4": "cpp",
+    "*.mq5": "cpp"
+  },
+  "explorer.confirmDragAndDrop": true
+}
