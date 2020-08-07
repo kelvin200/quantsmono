@@ -12,6 +12,7 @@
 #include <Trade\SymbolInfo.mqh>
 #include <Trade\PositionInfo.mqh>
 #include <Indicators\Trend.mqh>
+#include <Indicators\Oscilators.mqh>
 
 CAccountInfo account;
 CSymbolInfo symbol;
@@ -19,6 +20,7 @@ CPositionInfo position;
 CTrade trade;
 CiMA maFast;
 CiMA maSlow;
+CiATR atr;
 
 //--- input parameters
 input double RiskPerTrade = 0.01; // Maximum Risk in percentage
@@ -31,12 +33,9 @@ input double stop_loss_atr = 3;
 input double atr_range = 14;
 
 input double biasTrending = 0.5;
-input double biasCounterTrending = 0.3;
+input double biasCounter
 
-int ExtHandleFast = 0;
-int ExtHandleSlow = 0;
-int handlerATR = 0;
-double tick_size = 0;
+    double tick_size = 0;
 
 double GetTradeVolume(string pair, double stoploss)
 {
@@ -78,15 +77,11 @@ int OnInit(void)
 {
   tick_size = symbol.TickSize();
 
-  ima.Create
-
-      ExtHandleFast = iMA(_Symbol, _Period, MovingPeriodFast, 0, MODE_EMA, PRICE_CLOSE);
-  ExtHandleSlow = iMA(_Symbol, _Period, MovingPeriodSlow, 0, MODE_EMA, PRICE_CLOSE);
-  handlerATR = iATR(_Symbol, _Period, atr_range);
-
-  if (ExtHandleFast == INVALID_HANDLE || ExtHandleSlow == INVALID_HANDLE)
+  if (!maFast.Create(_Symbol, _Period, MovingPeriodFast, 0, MODE_EMA, PRICE_CLOSE) ||
+      !maSlow.Create(_Symbol, _Period, MovingPeriodSlow, 0, MODE_EMA, PRICE_CLOSE) ||
+      !atr.Create(_Symbol, _Period, atr_range))
   {
-    printf("Error creating MA indicator");
+    printf("Error creating indicator");
     return (INIT_FAILED);
   }
   return (INIT_SUCCEEDED);

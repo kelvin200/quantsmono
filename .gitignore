@@ -1,14 +1,10 @@
-*.ex5
-Files
-Images
-Include
-Libraries
-Logs
-Presets
-Profiles
-Scripts
-Services
-Shared\ Projects
-/Experts
-/Indicators
-/*.*
+*
+
+!Experts/
+!Experts/Kel
+!Experts/Kel/*
+!Indicators/
+!Indicators/Kel
+!Indicators/Kel/*
+!.vscode/
+!.vscode/*
