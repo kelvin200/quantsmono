@@ -2,9 +2,14 @@
 
 !Experts/
 !Experts/Kel
-!Experts/Kel/*
+!Experts/Kel/*.mq5
 !Indicators/
 !Indicators/Kel
-!Indicators/Kel/*
+!Indicators/Kel/*.mq5
 !.vscode/
 !.vscode/*
+!Include/
+!Include/Kel
+!Include/Kel/*
+!Include/Kel/*/*
+!Include/Kel/*/*/*
