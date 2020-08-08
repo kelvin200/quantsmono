@@ -11,7 +11,7 @@
     "**/*.dat": true
   },
   "C_Cpp.errorSquiggles": "Disabled",
-  "clang-format.executable": "C:\\Users\\Kelvin\\.vscode\\extensions\\ms-vscode.cpptools-0.30.0-insiders\\LLVM\\bin\\clang-format.exe",
+  "clang-format.executable": "C:\\Program Files\\LLVM\\bin\\clang-format.exe",
   "files.associations": {
     "*.mqh": "cpp",
     "*.mq4": "cpp",
