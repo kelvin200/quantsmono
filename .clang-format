@@ -1,0 +1,6 @@
+BasedOnStyle: Google
+AlignConsecutiveMacros: true
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AllowAllParametersOfDeclarationOnNextLine: false
+BinPackParameters: false
