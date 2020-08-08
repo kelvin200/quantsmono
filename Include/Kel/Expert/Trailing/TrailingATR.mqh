@@ -35,8 +35,8 @@ class CTrailingATR : public CExpertTrailing {
   color  m_color_sell;
 
  public:
-  CTrailingATR(void);
-  ~CTrailingATR(void);
+  CTrailingATR();
+  ~CTrailingATR();
 
   void Range(int range) { m_atr_range = range; }
   void BiasPositive(double bias) { m_bias_pos = bias; }
@@ -47,7 +47,7 @@ class CTrailingATR : public CExpertTrailing {
   void ColorSell(color c) { m_color_sell = c; }
 
   virtual bool InitIndicators(CIndicators *indicators);
-  virtual bool ValidationSettings(void);
+  virtual bool ValidationSettings();
   virtual bool CheckTrailingStopLong(CPositionInfo *position,
                                      double &       sl,
                                      double &       tp);
@@ -71,7 +71,7 @@ class CTrailingATR : public CExpertTrailing {
 //+------------------------------------------------------------------+
 //| Constructor                                                      |
 //+------------------------------------------------------------------+
-CTrailingATR::CTrailingATR(void)
+CTrailingATR::CTrailingATR()
     : m_ATR(NULL),
       m_atr_range(9),
       m_bias_pos(1.0),
@@ -85,18 +85,23 @@ CTrailingATR::CTrailingATR(void)
 //+------------------------------------------------------------------+
 //| Destructor                                                       |
 //+------------------------------------------------------------------+
-CTrailingATR::~CTrailingATR(void) {}
+CTrailingATR::~CTrailingATR() {}
 //+------------------------------------------------------------------+
 //| Validation settings protected data.                              |
 //+------------------------------------------------------------------+
-bool CTrailingATR::ValidationSettings(void) {
+bool CTrailingATR::ValidationSettings() {
   if (!CExpertTrailing::ValidationSettings()) return false;
-  //--- initial data checks
+
   if (m_atr_range <= 0) {
     printf(__FUNCTION__ + ": range of ATR must be greater than 0");
     return false;
   }
-  //--- ok
+
+  if (m_bias_pos < 1.0 || m_bias_neg > 1.0 || m_bias_neg > m_bias_pos) {
+    printf(__FUNCTION__ + ": bias might cause divergence");
+    return false;
+  }
+
   return true;
 }
 //+------------------------------------------------------------------+
