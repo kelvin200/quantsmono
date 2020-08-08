@@ -54,25 +54,25 @@ CTrailingATR::~CTrailingATR(void) {}
 //| Validation settings protected data.                              |
 //+------------------------------------------------------------------+
 bool CTrailingATR::ValidationSettings(void) {
-  if (!CExpertTrailing::ValidationSettings()) return (false);
+  if (!CExpertTrailing::ValidationSettings()) return false;
   //--- initial data checks
   if (m_profit_level != 0 &&
       m_profit_level * (m_adjusted_point / m_symbol.Point()) <
-          m_symbol.StopsLevel()) {
+        m_symbol.StopsLevel()) {
     printf(
-        __FUNCTION__ + ": trailing Profit Level must be 0 or greater than %d",
-        m_symbol.StopsLevel());
-    return (false);
+      __FUNCTION__ + ": trailing Profit Level must be 0 or greater than %d",
+      m_symbol.StopsLevel());
+    return false;
   }
   if (m_stop_level != 0 &&
       m_stop_level * (m_adjusted_point / m_symbol.Point()) <
-          m_symbol.StopsLevel()) {
+        m_symbol.StopsLevel()) {
     printf(__FUNCTION__ + ": trailing Stop Level must be 0 or greater than %d",
            m_symbol.StopsLevel());
-    return (false);
+    return false;
   }
   //--- ok
-  return (true);
+  return true;
 }
 //+------------------------------------------------------------------+
 //| Checking trailing stop and/or profit for long position.          |
@@ -81,8 +81,8 @@ bool CTrailingATR::CheckTrailingStopLong(CPositionInfo *position,
                                          double &       sl,
                                          double &       tp) {
   //--- check
-  if (position == NULL) return (false);
-  if (m_stop_level == 0) return (false);
+  if (position == NULL) return false;
+  if (m_stop_level == 0) return false;
   //---
   double delta;
   double pos_sl = position.StopLoss();
@@ -92,12 +92,13 @@ bool CTrailingATR::CheckTrailingStopLong(CPositionInfo *position,
   sl    = EMPTY_VALUE;
   tp    = EMPTY_VALUE;
   delta = m_stop_level * m_adjusted_point;
+
   if (price - base > delta) {
     sl = price - delta;
     if (m_profit_level != 0) tp = price + m_profit_level * m_adjusted_point;
   }
   //---
-  return (sl != EMPTY_VALUE);
+  return sl != EMPTY_VALUE;
 }
 //+------------------------------------------------------------------+
 //| Checking trailing stop and/or profit for short position.         |
@@ -106,8 +107,8 @@ bool CTrailingATR::CheckTrailingStopShort(CPositionInfo *position,
                                           double &       sl,
                                           double &       tp) {
   //--- check
-  if (position == NULL) return (false);
-  if (m_stop_level == 0) return (false);
+  if (position == NULL) return false;
+  if (m_stop_level == 0) return false;
   //---
   double delta;
   double pos_sl = position.StopLoss();
@@ -122,6 +123,6 @@ bool CTrailingATR::CheckTrailingStopShort(CPositionInfo *position,
     if (m_profit_level != 0) tp = price - m_profit_level * m_adjusted_point;
   }
   //---
-  return (sl != EMPTY_VALUE);
+  return sl != EMPTY_VALUE;
 }
 //+------------------------------------------------------------------+

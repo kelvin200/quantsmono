@@ -11,6 +11,7 @@
 !.vscode/
 !.vscode/*
 !.clang-format
+!.clang-format.sample
 
 !Include/
 !Include/Kel

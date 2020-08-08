@@ -4,3 +4,4 @@ AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
 AllowAllParametersOfDeclarationOnNextLine: false
 BinPackParameters: false
+ContinuationIndentWidth: 2
