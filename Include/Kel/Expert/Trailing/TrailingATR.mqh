@@ -30,6 +30,9 @@ class CTrailingATR : public CExpertTrailing {
   double m_bias_pos;
   double m_bias_neg;
   double m_max_sl;
+  bool   m_draw_trailing;
+  color  m_color_buy;
+  color  m_color_sell;
 
  public:
   CTrailingATR(void);
@@ -39,6 +42,9 @@ class CTrailingATR : public CExpertTrailing {
   void BiasPositive(double bias) { m_bias_pos = bias; }
   void BiasNegative(double bias) { m_bias_neg = bias; }
   void MaxStopLoss(int sl) { m_max_sl = sl * m_symbol.TickSize(); }
+  void DrawTrailing(bool d) { m_draw_trailing = d; }
+  void ColorBuy(color c) { m_color_buy = c; }
+  void ColorSell(color c) { m_color_sell = c; }
 
   virtual bool InitIndicators(CIndicators *indicators);
   virtual bool ValidationSettings(void);
@@ -50,7 +56,7 @@ class CTrailingATR : public CExpertTrailing {
                                       double &       tp);
 
  protected:
-  double CandleHeight(int ind) { return (Close(ind) - Open(ind)); }
+  double CandleHeight(int ind) { return Close(ind) - Open(ind); }
   int    CandleDirection(int ind) {
     double height = CandleHeight(ind);
     return height > 0 ? 1 : height < 0 ? -1 : 0;
@@ -65,7 +71,17 @@ class CTrailingATR : public CExpertTrailing {
 //+------------------------------------------------------------------+
 //| Constructor                                                      |
 //+------------------------------------------------------------------+
-CTrailingATR::CTrailingATR(void) : m_ATR(NULL), m_atr_range(9) {}
+CTrailingATR::CTrailingATR(void)
+    : m_ATR(NULL),
+      m_atr_range(9),
+      m_bias_pos(1.0),
+      m_bias_neg(1.0),
+      m_max_sl(500),
+      m_draw_trailing(false),
+      m_color_buy(clrRoyalBlue),
+      m_color_sell(clrRed) {
+  m_used_series = USE_SERIES_TIME;
+}
 //+------------------------------------------------------------------+
 //| Destructor                                                       |
 //+------------------------------------------------------------------+
@@ -132,6 +148,13 @@ bool CTrailingATR::NewStopLoss(bool           isLong,
   sl = NormalizeDouble(MathMin(base + direction * mod, priceOpen + m_max_sl),
                        m_symbol.Digits());
   tp = EMPTY_VALUE;
+
+  if (m_draw_trailing) {
+    string name = "sl" + Time(1);
+    ObjectCreate(0, name, OBJ_TREND, 0, Time(0), sl, Time(1), pos_sl);
+    ObjectSetInteger(0, name, OBJPROP_COLOR,
+                     isLong ? m_color_buy : m_color_sell);
+  }
 
   return sl != EMPTY_VALUE;
 }

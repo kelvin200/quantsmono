@@ -42,10 +42,13 @@ input ENUM_APPLIED_PRICE Signal_MA_Applied =
 input double Signal_MA_Weight =
   1.0;  // Moving Average(12,0,...) Weight [0...1.0]
 //--- inputs for trailing
-input int    Trailing_ATR_Range        = 9;    // Stop Loss range
-input double Trailing_ATR_BiasPositive = 1;    // Bias Positive
-input double Trailing_ATR_BiasNegative = 0.5;  // BiasNegative
-input int    Trailing_ATR_MaxStopLoss  = 500;  // Max StopLoss (in points)
+input int    Trailing_ATR_Range        = 9;      // Stop Loss range
+input double Trailing_ATR_BiasPositive = 1;      // Bias Positive
+input double Trailing_ATR_BiasNegative = 0.5;    // Bias Negative
+input int    Trailing_ATR_MaxStopLoss  = 500;    // Max StopLoss (in points)
+input bool   Trailing_ATR_DrawTrailing = false;  // Draw StopLoss History
+input color  Trailing_ATR_Color_Buy  = clrRoyalBlue;  // Color of Long StopLoss
+input color  Trailing_ATR_Color_Sell = clrRed;        // Color of Short StopLoss
 //--- inputs for money
 input double Money_FixLot_Percent = 10.0;  // Percent
 input double Money_FixLot_Lots    = 0.1;   // Fixed volume
@@ -116,6 +119,9 @@ int OnInit() {
   trailing.BiasPositive(Trailing_ATR_BiasPositive);
   trailing.BiasNegative(Trailing_ATR_BiasNegative);
   trailing.MaxStopLoss(Trailing_ATR_MaxStopLoss);
+  trailing.DrawTrailing(Trailing_ATR_DrawTrailing);
+  trailing.ColorBuy(Trailing_ATR_Color_Buy);
+  trailing.ColorSell(Trailing_ATR_Color_Sell);
   //--- Creation of money object
   CMoneyFixedLot *money = new CMoneyFixedLot;
   if (money == NULL) {
