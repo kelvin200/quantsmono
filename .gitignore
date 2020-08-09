@@ -14,8 +14,8 @@
 !.clang-format.sample
 
 !Include/
-!Include/Kel
-!Include/Kel/*
-!Include/Kel/*/*
-!Include/Kel/*/*/*
+!Include/Expert
+!Include/Expert/Trailing
+!Include/Expert/Trailing/Kel
+!Include/Expert/Trailing/Kel/*
 

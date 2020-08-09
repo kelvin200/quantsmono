@@ -11,11 +11,14 @@
 //| Type=Trailing                                                    |
 //| Name=ATR                                                         |
 //| Class=CTrailingATR                                               |
-//| Page=                                                            |
-//| Parameter=Period,int,12,Period of ATR                            |
-//| Parameter=Shift,int,0,Shift of ATR                               |
-//| Parameter=Method,ENUM_ATR_METHOD,MODE_SATR,Method of averaging   |
-//| Parameter=Applied,ENUM_APPLIED_PRICE,PRICE_CLOSE,Prices series   |
+//| Page=Not needed                                                  |
+//| Parameter=Range,int,9,Period of ATR                              |
+//| Parameter=BiasPositive,double,1.0,Bias Positive                  |
+//| Parameter=BiasNegative,double,1.0,Bias Negative                  |
+//| Parameter=MaxStopLoss,int,500,Max StopLoss in points             |
+//| Parameter=DrawTrailing,bool,false,Draw StopLoss history          |
+//| Parameter=ColorBuy,color,clrRoyalBlue,Color of Long StopLoss     |
+//| Parameter=ColorSell,color,clrRed,Color of Short StopLoss         |
 //+------------------------------------------------------------------+
 // wizard description end
 //+------------------------------------------------------------------+
