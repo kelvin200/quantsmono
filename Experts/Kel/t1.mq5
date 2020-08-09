@@ -9,39 +9,47 @@
 //+------------------------------------------------------------------+
 //| Include                                                          |
 //+------------------------------------------------------------------+
-#include <Expert\Expert.mqh>
+#include <Expert\Kel\ExpertControllable.mqh>
 //--- available signals
 #include <Expert\Signal\SignalMA.mqh>
 //--- available trailing
-#include <Expert\Trailing\TrailingNone.mqh>
+#include <Expert\Trailing\Kel\TrailingATR.mqh>
 //--- available money management
 #include <Expert\Money\MoneyFixedLot.mqh>
 //+------------------------------------------------------------------+
 //| Inputs                                                           |
 //+------------------------------------------------------------------+
 //--- inputs for expert
-input string             Expert_Title         ="t1";        // Document name
-ulong                    Expert_MagicNumber   =10908;       //
-bool                     Expert_EveryTick     =false;       //
+input string             Expert_Title             ="t1";        // Document name
+ulong                    Expert_MagicNumber       =10973;       //
+bool                     Expert_EveryTick         =false;       //
 //--- inputs for main signal
-input int                Signal_ThresholdOpen =10;          // Signal threshold value to open [0...100]
-input int                Signal_ThresholdClose=10;          // Signal threshold value to close [0...100]
-input double             Signal_PriceLevel    =0.0;         // Price level to execute a deal
-input double             Signal_StopLevel     =50.0;        // Stop Loss level (in points)
-input double             Signal_TakeLevel     =50.0;        // Take Profit level (in points)
-input int                Signal_Expiration    =4;           // Expiration of pending orders (in bars)
-input int                Signal_MA_PeriodMA   =12;          // Moving Average(12,0,...) Period of averaging
-input int                Signal_MA_Shift      =0;           // Moving Average(12,0,...) Time shift
-input ENUM_MA_METHOD     Signal_MA_Method     =MODE_SMA;    // Moving Average(12,0,...) Method of averaging
-input ENUM_APPLIED_PRICE Signal_MA_Applied    =PRICE_CLOSE; // Moving Average(12,0,...) Prices series
-input double             Signal_MA_Weight     =1.0;         // Moving Average(12,0,...) Weight [0...1.0]
+input int                Signal_ThresholdOpen     =10;          // Signal threshold value to open [0...100]
+input int                Signal_ThresholdClose    =10;          // Signal threshold value to close [0...100]
+input double             Signal_PriceLevel        =0.0;         // Price level to execute a deal
+input double             Signal_StopLevel         =50.0;        // Stop Loss level (in points)
+input double             Signal_TakeLevel         =50.0;        // Take Profit level (in points)
+input int                Signal_Expiration        =4;           // Expiration of pending orders (in bars)
+input int                Signal_MA_PeriodMA       =24;          // Moving Average(24,0,...) Period of averaging
+input int                Signal_MA_Shift          =0;           // Moving Average(24,0,...) Time shift
+input ENUM_MA_METHOD     Signal_MA_Method         =MODE_SMA;    // Moving Average(24,0,...) Method of averaging
+input ENUM_APPLIED_PRICE Signal_MA_Applied        =PRICE_CLOSE; // Moving Average(24,0,...) Prices series
+input double             Signal_MA_Weight         =1.0;         // Moving Average(24,0,...) Weight [0...1.0]
+//--- inputs for trailing
+input int                Trailing_ATR_Range       =9;           // Period of ATR
+input double             Trailing_ATR_BiasPositive=1.0;         // Bias Positive
+input double             Trailing_ATR_BiasNegative=1.0;         // Bias Negative
+input int                Trailing_ATR_MaxStopLoss =500;         // Max StopLoss in points
+input bool               Trailing_ATR_DrawTrailing=true;        // Draw StopLoss history
+input color              Trailing_ATR_ColorBuy    =16760576;    // Color of Long StopLoss
+input color              Trailing_ATR_ColorSell   =255;         // Color of Short StopLoss
 //--- inputs for money
-input double             Money_FixLot_Percent =10.0;        // Percent
-input double             Money_FixLot_Lots    =0.1;         // Fixed volume
+input double             Money_FixLot_Percent     =10.0;        // Percent
+input double             Money_FixLot_Lots        =0.1;         // Fixed volume
 //+------------------------------------------------------------------+
 //| Global expert object                                             |
 //+------------------------------------------------------------------+
-CExpert ExtExpert;
+CExpertControllable ExtExpert;
 //+------------------------------------------------------------------+
 //| Initialization function of the expert                            |
 //+------------------------------------------------------------------+
@@ -89,7 +97,7 @@ int OnInit()
    filter0.Applied(Signal_MA_Applied);
    filter0.Weight(Signal_MA_Weight);
 //--- Creation of trailing object
-   CTrailingNone *trailing=new CTrailingNone;
+   CTrailingATR *trailing=new CTrailingATR;
    if(trailing==NULL)
      {
       //--- failed
@@ -106,6 +114,13 @@ int OnInit()
       return(INIT_FAILED);
      }
 //--- Set trailing parameters
+   trailing.Range(Trailing_ATR_Range);
+   trailing.BiasPositive(Trailing_ATR_BiasPositive);
+   trailing.BiasNegative(Trailing_ATR_BiasNegative);
+   trailing.MaxStopLoss(Trailing_ATR_MaxStopLoss);
+   trailing.DrawTrailing(Trailing_ATR_DrawTrailing);
+   trailing.ColorBuy(Trailing_ATR_ColorBuy);
+   trailing.ColorSell(Trailing_ATR_ColorSell);
 //--- Creation of money object
    CMoneyFixedLot *money=new CMoneyFixedLot;
    if(money==NULL)

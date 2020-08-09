@@ -15,7 +15,8 @@
 
 !Include/
 !Include/Expert
+!Include/Expert/Kel
+!Include/Expert/Kel/*
 !Include/Expert/Trailing
 !Include/Expert/Trailing/Kel
 !Include/Expert/Trailing/Kel/*
-
