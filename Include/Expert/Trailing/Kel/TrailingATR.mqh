@@ -17,8 +17,8 @@
 //| Parameter=BiasNegative,double,1.0,Bias Negative                  |
 //| Parameter=MaxStopLoss,int,500,Max StopLoss in points             |
 //| Parameter=DrawTrailing,bool,false,Draw StopLoss history          |
-//| Parameter=ColorBuy,color,clrRoyalBlue,Color of Long StopLoss     |
-//| Parameter=ColorSell,color,clrRed,Color of Short StopLoss         |
+//| Parameter=ColorBuy,color,16760576,Color of Long StopLoss     |
+//| Parameter=ColorSell,color,17919,Color of Short StopLoss         |
 //+------------------------------------------------------------------+
 // wizard description end
 //+------------------------------------------------------------------+
@@ -26,6 +26,7 @@
 //| Purpose: Class of trailing stops based on ATR.                   |
 //|              Derives from class CExpertTrailing.                 |
 //+------------------------------------------------------------------+
+
 class CTrailingATR : public CExpertTrailing {
  protected:
   CiATR *m_ATR;
@@ -51,12 +52,8 @@ class CTrailingATR : public CExpertTrailing {
 
   virtual bool InitIndicators(CIndicators *indicators);
   virtual bool ValidationSettings();
-  virtual bool CheckTrailingStopLong(CPositionInfo *position,
-                                     double &       sl,
-                                     double &       tp);
-  virtual bool CheckTrailingStopShort(CPositionInfo *position,
-                                      double &       sl,
-                                      double &       tp);
+  virtual bool CheckTrailingStopLong(CPositionInfo *position, double &sl, double &tp);
+  virtual bool CheckTrailingStopShort(CPositionInfo *position, double &sl, double &tp);
 
  protected:
   double CandleHeight(int ind) { return Close(ind) - Open(ind); }
@@ -65,10 +62,7 @@ class CTrailingATR : public CExpertTrailing {
     return height > 0 ? 1 : height < 0 ? -1 : 0;
   }
 
-  virtual bool NewStopLoss(bool           isLong,
-                           CPositionInfo *position,
-                           double &       sl,
-                           double &       tp);
+  virtual bool NewStopLoss(bool isLong, CPositionInfo *position, double &sl, double &tp);
 };
 
 //+------------------------------------------------------------------+
@@ -83,7 +77,7 @@ CTrailingATR::CTrailingATR()
       m_draw_trailing(false),
       m_color_buy(clrRoyalBlue),
       m_color_sell(clrRed) {
-  m_used_series = USE_SERIES_TIME;
+  m_used_series = USE_SERIES_TIME | USE_SERIES_OPEN | USE_SERIES_CLOSE;
 }
 //+------------------------------------------------------------------+
 //| Destructor                                                       |
@@ -135,33 +129,39 @@ bool CTrailingATR::InitIndicators(CIndicators *indicators) {
   return true;
 }
 
-bool CTrailingATR::NewStopLoss(bool           isLong,
-                               CPositionInfo *position,
-                               double &       sl,
-                               double &       tp) {
+bool CTrailingATR::NewStopLoss(bool isLong, CPositionInfo *position, double &sl, double &tp) {
   double height;
 
   if (position == NULL) return false;
-  if ((height = CandleHeight(1)) == 0) return false;
+
+  double pos_sl = position.StopLoss();
+  double pos_tp = position.StopLoss();
+  if ((height = CandleHeight(1)) == 0) {
+    if (m_draw_trailing && pos_sl > 0.0) {
+      string name = "sl" + Time(1);
+      ObjectCreate(0, name, OBJ_TREND, 0, Time(0), pos_sl, Time(1), pos_sl);
+      ObjectSetInteger(0, name, OBJPROP_COLOR, isLong ? m_color_buy : m_color_sell);
+    }
+    return false;
+  }
 
   double direction      = height > 0 ? 1 : -1;
   bool   followingTrend = isLong ? direction > 0 : direction < 0;
   double bias           = followingTrend ? m_bias_pos : m_bias_neg;
-  double pos_sl         = position.StopLoss();
   double priceOpen      = position.PriceOpen();
-  double base           = pos_sl == 0.0 ? priceOpen : pos_sl;
-  double mod            = pos_sl == 0.0 ? m_max_sl * 0.5
-                             : MathSqrt(m_ATR.Main(1) * MathAbs(height)) * bias;
+  double base_sl        = pos_sl == 0.0 ? priceOpen : pos_sl;
+  double base_tp        = pos_tp == 0.0 ? priceOpen : pos_tp;
+  double mod_sl         = pos_sl == 0.0 ? m_max_sl : MathSqrt(m_ATR.Main(1) * MathAbs(height)) * bias;
+  double mod_tp         = pos_tp == 0.0 ? m_max_sl : MathSqrt(m_ATR.Main(1) * MathAbs(height)) * bias;
 
-  sl = NormalizeDouble(MathMin(base + direction * mod, priceOpen + m_max_sl),
-                       m_symbol.Digits());
-  tp = EMPTY_VALUE;
+  sl = NormalizeDouble(MathMin(base_sl + direction * mod_sl, priceOpen + m_max_sl), m_symbol.Digits());
+  // tp = EMPTY_VALUE;
+  tp = NormalizeDouble(MathMin(base_tp - direction * mod_tp, priceOpen + m_max_sl), m_symbol.Digits());
 
-  if (m_draw_trailing) {
+  if (m_draw_trailing && pos_sl > 0.0) {
     string name = "sl" + Time(1);
     ObjectCreate(0, name, OBJ_TREND, 0, Time(0), sl, Time(1), pos_sl);
-    ObjectSetInteger(0, name, OBJPROP_COLOR,
-                     isLong ? m_color_buy : m_color_sell);
+    ObjectSetInteger(0, name, OBJPROP_COLOR, isLong ? m_color_buy : m_color_sell);
   }
 
   return sl != EMPTY_VALUE;
@@ -170,18 +170,14 @@ bool CTrailingATR::NewStopLoss(bool           isLong,
 //+------------------------------------------------------------------+
 //| Checking trailing stop and/or profit for long position.          |
 //+------------------------------------------------------------------+
-bool CTrailingATR::CheckTrailingStopLong(CPositionInfo *position,
-                                         double &       sl,
-                                         double &       tp) {
+bool CTrailingATR::CheckTrailingStopLong(CPositionInfo *position, double &sl, double &tp) {
   return NewStopLoss(true, position, sl, tp);
 }
 
 //+------------------------------------------------------------------+
 //| Checking trailing stop and/or profit for short position.         |
 //+------------------------------------------------------------------+
-bool CTrailingATR::CheckTrailingStopShort(CPositionInfo *position,
-                                          double &       sl,
-                                          double &       tp) {
+bool CTrailingATR::CheckTrailingStopShort(CPositionInfo *position, double &sl, double &tp) {
   return NewStopLoss(false, position, sl, tp);
 }
 //+------------------------------------------------------------------+
