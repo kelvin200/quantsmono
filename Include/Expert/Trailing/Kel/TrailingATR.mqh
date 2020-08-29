@@ -4,6 +4,7 @@
 //|                                              http://www.mql5.com |
 //+------------------------------------------------------------------+
 #include <Expert\ExpertTrailing.mqh>
+#include <Math\Stat\Math.mqh>
 // wizard description start
 //+------------------------------------------------------------------+
 //| Description of the class                                         |
@@ -154,9 +155,9 @@ bool CTrailingATR::NewStopLoss(bool isLong, CPositionInfo *position, double &sl,
   double mod_sl         = pos_sl == 0.0 ? m_max_sl : MathSqrt(m_ATR.Main(1) * MathAbs(height)) * bias;
   double mod_tp         = pos_tp == 0.0 ? m_max_sl : MathSqrt(m_ATR.Main(1) * MathAbs(height)) * bias;
 
-  sl = NormalizeDouble(MathMin(base_sl + direction * mod_sl, priceOpen + m_max_sl), m_symbol.Digits());
+  sl = MathRound(MathMin(base_sl + direction * mod_sl, priceOpen + m_max_sl), m_symbol.Digits());
   // tp = EMPTY_VALUE;
-  tp = NormalizeDouble(MathMin(base_tp - direction * mod_tp, priceOpen + m_max_sl), m_symbol.Digits());
+  tp = MathRound(MathMin(base_tp - direction * mod_tp, priceOpen + m_max_sl), m_symbol.Digits());
 
   if (m_draw_trailing && pos_sl > 0.0) {
     string name = "sl" + Time(1);
