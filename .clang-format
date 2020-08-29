@@ -6,5 +6,3 @@ AllowAllParametersOfDeclarationOnNextLine: false
 BinPackParameters: false
 ContinuationIndentWidth: 2
 ColumnLimit: 120
-
-
