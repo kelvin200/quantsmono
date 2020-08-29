@@ -11,9 +11,6 @@
 //+------------------------------------------------------------------+
 // #include <Expert\Expert.mqh>
 #include <Expert\Kel\ExpertAlpha.mqh>
-//--- available signals
-#include <Expert\Signal\SignalMACD.mqh>
-#include <Expert\Signal\SignalRSI.mqh>
 
 //--- available trailing
 #include <Expert\Trailing\Kel\TrailingATR.mqh>
@@ -23,25 +20,20 @@
 //| Inputs                                                           |
 //+------------------------------------------------------------------+
 //--- inputs for expert
-input string Expert_Title       = "t2";     // Document name
-input string Expert_Alpha1      = "+(R5)";  //
+input string Expert_Title       = "Alpha";  // Document name
+input string Expert_Alpha       = "R2";     //
+input double Expert_Thresold    = 0;        //
+input double Expert_StopLoss    = 0.01;     //
+input double Expert_TakeProfit  = 0.01;     //
 ulong        Expert_MagicNumber = 17475;    //
 bool         Expert_EveryTick   = false;    //
 //--- inputs for main signal
-input int                Signal_ThresholdOpen     = 10;    // Signal threshold value to open [0...100]
-input int                Signal_ThresholdClose    = 10;    // Signal threshold value to close [0...100]
-input double             Signal_PriceLevel        = 0.0;   // Price level to execute a deal
-input double             Signal_StopLevel         = 50.0;  // Stop Loss level (in points)
-input double             Signal_TakeLevel         = 50.0;  // Take Profit level (in points)
-input int                Signal_Expiration        = 4;     // Expiration of pending orders (in bars)
-input int                Signal_RSI_PeriodRSI     = 8;     // Relative Strength Index(8,...) Period of calculation
-input ENUM_APPLIED_PRICE Signal_RSI_Applied       = PRICE_CLOSE;  // Relative Strength Index(8,...) Prices series
-input double             Signal_RSI_Weight        = 1.0;          // Relative Strength Index(8,...) Weight [0...1.0]
-input int                Signal_MACD_PeriodFast   = 12;           // MACD(12,24,9,PRICE_CLOSE) Period of fast EMA
-input int                Signal_MACD_PeriodSlow   = 24;           // MACD(12,24,9,PRICE_CLOSE) Period of slow EMA
-input int                Signal_MACD_PeriodSignal = 9;  // MACD(12,24,9,PRICE_CLOSE) Period of averaging of difference
-input ENUM_APPLIED_PRICE Signal_MACD_Applied      = PRICE_CLOSE;  // MACD(12,24,9,PRICE_CLOSE) Prices series
-input double             Signal_MACD_Weight       = 1.0;          // MACD(12,24,9,PRICE_CLOSE) Weight [0...1.0]
+input int    Signal_ThresholdOpen  = 10;    // Signal threshold value to open [0...100]
+input int    Signal_ThresholdClose = 10;    // Signal threshold value to close [0...100]
+input double Signal_PriceLevel     = 0.0;   // Price level to execute a deal
+input double Signal_StopLevel      = 50.0;  // Stop Loss level (in points)
+input double Signal_TakeLevel      = 50.0;  // Take Profit level (in points)
+input int    Signal_Expiration     = 4;     // Expiration of pending orders (in bars)
 //--- inputs for trailing
 input int    Trailing_ATR_Range        = 9;         // Period of ATR
 input double Trailing_ATR_BiasPositive = 1.0;       // Bias Positive
@@ -69,7 +61,10 @@ int OnInit() {
     ExtExpert.Deinit();
     return (INIT_FAILED);
   }
-  ExtExpert.Alpha1(Expert_Alpha1);
+  ExtExpert.Alpha(Expert_Alpha);
+  ExtExpert.Thresold(Expert_Thresold);
+  ExtExpert.StopLoss(Expert_StopLoss);
+  ExtExpert.TakeProfit(Expert_TakeProfit);
   //--- Creating signal
   CExpertSignal *signal = new CExpertSignal;
   if (signal == NULL) {
@@ -86,34 +81,6 @@ int OnInit() {
   signal.StopLevel(Signal_StopLevel);
   //  signal.TakeLevel(Signal_TakeLevel);
   signal.Expiration(Signal_Expiration);
-  //--- Creating filter CSignalRSI
-  CSignalRSI *filter0 = new CSignalRSI;
-  if (filter0 == NULL) {
-    //--- failed
-    printf(__FUNCTION__ + ": error creating filter0");
-    ExtExpert.Deinit();
-    return (INIT_FAILED);
-  }
-  signal.AddFilter(filter0);
-  //--- Set filter parameters
-  filter0.PeriodRSI(Signal_RSI_PeriodRSI);
-  filter0.Applied(Signal_RSI_Applied);
-  filter0.Weight(Signal_RSI_Weight);
-  //--- Creating filter CSignalMACD
-  CSignalMACD *filter1 = new CSignalMACD;
-  if (filter1 == NULL) {
-    //--- failed
-    printf(__FUNCTION__ + ": error creating filter1");
-    ExtExpert.Deinit();
-    return (INIT_FAILED);
-  }
-  signal.AddFilter(filter1);
-  //--- Set filter parameters
-  filter1.PeriodFast(Signal_MACD_PeriodFast);
-  filter1.PeriodSlow(Signal_MACD_PeriodSlow);
-  filter1.PeriodSignal(Signal_MACD_PeriodSignal);
-  filter1.Applied(Signal_MACD_Applied);
-  filter1.Weight(Signal_MACD_Weight);
   //--- Creation of trailing object
   CTrailingATR *trailing = new CTrailingATR;
   if (trailing == NULL) {

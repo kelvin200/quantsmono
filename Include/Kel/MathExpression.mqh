@@ -1,8 +1,9 @@
+#include <Generic\ArrayList.mqh>
 #include <Generic\Queue.mqh>
 #include <Generic\Stack.mqh>
 #include <Strings\String.mqh>
 
-int rank(char c) {
+int Rank(char c) {
   switch (c) {
     case '+':
     case '-':
@@ -17,26 +18,26 @@ int rank(char c) {
   }
 }
 
-void addValToFunc(string a, CQueue<string> *func) {
-  if (a != "X") func.Enqueue(a);
+void AddToFunc(string a, CArrayList<string> *func) {
+  if (a != "X") func.Add(a);
 }
 
-void moveOperator(string op, CStack<string> &tok, CStack<string> &val, CQueue<string> *func) {
+void MoveOperator(string op, CStack<string> &tok, CStack<string> &val, CArrayList<string> *func) {
   string a         = val.Pop();
   bool   negWithOp = op == "|" && (tok.Count() > 0 && tok.Peek() != "(");
-  if (op != "|" || negWithOp) addValToFunc(val.Pop(), func);
-  addValToFunc(a, func);
-  func.Enqueue(op);
-  if (negWithOp) func.Enqueue(tok.Pop());
+  if (op != "|" || negWithOp) AddToFunc(val.Pop(), func);
+  AddToFunc(a, func);
+  AddToFunc(op, func);
+  if (negWithOp) AddToFunc(tok.Pop(), func);
   val.Push("X");
 }
 
-void parseExp(string value, string &alpha, CQueue<string> *&func) {
-  alpha = value;
-  func  = new CQueue<string>(100);
+void ParseExp(string value, CArrayList<string> *&func) {
+  func = new CArrayList<string>(100);
 
   if (value == "") return;
 
+  string         alpha = value;
   CStack<string> tok(100);
   CStack<string> val(100);
 
@@ -48,6 +49,11 @@ void parseExp(string value, string &alpha, CQueue<string> *&func) {
     char   c  = alpha[i];
     string cs = StringSubstr(alpha, i, 1);
 
+    // Print("C ", cs);
+    // Print("TOK ", tok.Log());
+    // Print("VAL ", val.Log());
+    // Print("FUNC ", func.Log());
+    // Print("-------");
     switch (c) {
       case '+':
         if (i == 0 || alpha[i - 1] == '+' || alpha[i - 1] == '-' || alpha[i - 1] == '*' || alpha[i - 1] == '/' ||
@@ -63,9 +69,9 @@ void parseExp(string value, string &alpha, CQueue<string> *&func) {
       case '/':
         if (tok.Count() > 0) {
           char p = tok.Peek()[0];
-          if (p != '(' && rank(p) > rank(c)) {
+          if (p != '(' && Rank(p) > Rank(c)) {
             string t = tok.Pop();
-            moveOperator(t, tok, val, func);
+            MoveOperator(t, tok, val, func);
           }
         }
       case '(':
@@ -74,7 +80,7 @@ void parseExp(string value, string &alpha, CQueue<string> *&func) {
       case ')': {
         string t = tok.Pop();
         while (t != "(") {
-          moveOperator(t, tok, val, func);
+          MoveOperator(t, tok, val, func);
           t = tok.Pop();
         }
         break;
@@ -105,12 +111,20 @@ void parseExp(string value, string &alpha, CQueue<string> *&func) {
     }
   }
 
+  // Print("TOK ", tok.Log());
+  // Print("VAL ", val.Log());
+  // Print("FUNC ", func.Log());
+  // Print("-------");
+
   while (tok.Count() > 0) {
-    addValToFunc(val.Pop(), func);
-    func.Enqueue(tok.Pop());
+    MoveOperator(tok.Pop(), tok, val, func);
   }
 
-  //   Print("TOK ", tok.Log());
-  //   Print("VAL ", val.Log());
-  //   Print("FUNC ", func.Log());
+  if (func.Count() == 0 && val.Count() == 1) {
+    AddToFunc(val.Pop(), func);
+  }
+
+  // Print("TOK ", tok.Log());
+  // Print("VAL ", val.Log());
+  // Print("FUNC ", func.Log());
 }
