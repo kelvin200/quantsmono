@@ -136,7 +136,7 @@ bool CTrailingATR::NewStopLoss(bool isLong, CPositionInfo *position, double &sl,
   if (position == NULL) return false;
 
   double pos_sl = position.StopLoss();
-  double pos_tp = position.StopLoss();
+  double pos_tp = position.TakeProfit();
   if ((height = CandleHeight(1)) == 0) {
     if (m_draw_trailing && pos_sl > 0.0) {
       string name = "sl" + Time(1);
@@ -160,9 +160,12 @@ bool CTrailingATR::NewStopLoss(bool isLong, CPositionInfo *position, double &sl,
   tp = MathRound(MathMin(base_tp - direction * mod_tp, priceOpen + m_max_sl), m_symbol.Digits());
 
   if (m_draw_trailing && pos_sl > 0.0) {
-    string name = "sl" + Time(1);
+    string name = "sl" + position.Ticket() + Time(1);
     ObjectCreate(0, name, OBJ_TREND, 0, Time(0), sl, Time(1), pos_sl);
     ObjectSetInteger(0, name, OBJPROP_COLOR, isLong ? m_color_buy : m_color_sell);
+    string name1 = "tp" + position.Ticket() + Time(1);
+    ObjectCreate(0, name1, OBJ_TREND, 0, Time(0), tp, Time(1), pos_tp);
+    ObjectSetInteger(0, name1, OBJPROP_COLOR, isLong ? m_color_sell : m_color_buy);
   }
 
   return sl != EMPTY_VALUE;
