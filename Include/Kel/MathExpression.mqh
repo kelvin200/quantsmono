@@ -101,7 +101,7 @@ void ParseExp(string value, CArrayList<string> *&func) {
       case '8':
       case '9': {
         int j = i++;
-        while (i < l && alpha[i] >= '0' && alpha[i] <= '9') ++i;
+        while (i < l && ((alpha[i] >= '0' && alpha[i] <= '9') || alpha[i] == '.')) ++i;
         val.Push(StringSubstr(alpha, j, i - j));
         --i;
         break;

@@ -157,7 +157,7 @@ bool CTrailingATR::NewStopLoss(bool isLong, CPositionInfo *position, double &sl,
 
   sl = MathRound(MathMin(base_sl + direction * mod_sl, priceOpen + m_max_sl), m_symbol.Digits());
   // tp = EMPTY_VALUE;
-  tp = MathRound(MathMin(base_tp - direction * mod_tp, priceOpen + m_max_sl), m_symbol.Digits());
+  tp = MathRound(MathMin(base_tp + direction * mod_tp, priceOpen + m_max_sl), m_symbol.Digits());
 
   if (m_draw_trailing && pos_sl > 0.0) {
     string name = "sl" + position.Ticket() + Time(1);
