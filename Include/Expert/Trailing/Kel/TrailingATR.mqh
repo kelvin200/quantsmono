@@ -154,6 +154,8 @@ bool CTrailingATR::NewStopLoss(bool isLong, CPositionInfo *position, double &sl,
   double base_tp        = pos_tp == 0.0 ? priceOpen : pos_tp;
   double mod_sl         = pos_sl == 0.0 ? m_max_sl : MathSqrt(m_ATR.Main(1) * MathAbs(height)) * bias;
   double mod_tp         = pos_tp == 0.0 ? m_max_sl : MathSqrt(m_ATR.Main(1) * MathAbs(height)) * bias;
+  // double mod_sl = pos_sl == 0.0 ? m_max_sl : MathAbs(height) * bias;
+  // double mod_tp = pos_tp == 0.0 ? m_max_sl : MathAbs(height) * bias;
 
   sl = MathRound(MathMin(base_sl + direction * mod_sl, priceOpen + m_max_sl), m_symbol.Digits());
   // tp = EMPTY_VALUE;

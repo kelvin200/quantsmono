@@ -23,13 +23,19 @@
 input string Expert_Title       = "Alpha";  // Document name
 input string Expert_Alpha       = "R2";     //
 input double Expert_Adjustment  = 1;        //
-input double Expert_Thresold    = 0;        //
+input double Expert_Thresold    = 0.05;     //
+input double Expert_ThresoldTop = 0.3;      //
 input double Expert_StopLoss    = 1;        //
 input double Expert_TakeProfit  = 1;        //
 input int    Expert_Range       = 12;       //
 input int    Expert_RangeSlow   = 120;      //
 input bool   Expert_Trailing    = false;    //
 input bool   Expert_AlphaLot    = false;    //
+input int    Expert_M4          = 2;        //
+input int    Expert_M24         = 2;        //
+input int    Expert_M48         = 2;        //
+input int    Expert_M120        = 2;        //
+input int    Expert_M480        = 2;        //
 ulong        Expert_MagicNumber = 17475;    //
 bool         Expert_EveryTick   = false;    //
 //--- inputs for main signal
@@ -69,12 +75,18 @@ int OnInit() {
   ExtExpert.Alpha(Expert_Alpha);
   ExtExpert.Adjustment(Expert_Adjustment);
   ExtExpert.Thresold(Expert_Thresold);
+  ExtExpert.ThresoldTop(Expert_ThresoldTop);
   ExtExpert.StopLoss(Expert_StopLoss);
   ExtExpert.TakeProfit(Expert_TakeProfit);
   ExtExpert.Range(Expert_Range);
   ExtExpert.RangeSlow(Expert_RangeSlow);
   ExtExpert.Trailing(Expert_Trailing);
   ExtExpert.AlphaLot(Expert_AlphaLot);
+  ExtExpert.M_4(Expert_M4);
+  ExtExpert.M_24(Expert_M24);
+  ExtExpert.M_48(Expert_M48);
+  ExtExpert.M_120(Expert_M120);
+  ExtExpert.M_480(Expert_M480);
   ExtExpert.MyIn();
   //--- Creating signal
   CExpertSignal *signal = new CExpertSignal;
