@@ -27,3 +27,5 @@
 !Scripts/
 !Scripts/Kel
 !Scripts/Kel/*
+
+*.npz

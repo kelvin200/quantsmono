@@ -1,27 +1,15 @@
-from datetime import datetime
-import MetaTrader5 as mt5
-import numpy as np
-from numpy import savez_compressed
 
-MAX_DATA_LENGTH = 1000000
-MT5_CHUNK_SIZE = 99000
-INPUT_STARTDATE = datetime(2020, 10, 2, 19)
-INPUT_TIMEFRAME = mt5.TIMEFRAME_M15
-INPUT_SYMBOL = 'EURUSD'
-
-
-mt5.initialize()
-
-rates = mt5.copy_rates_from(
-    INPUT_SYMBOL, INPUT_TIMEFRAME, INPUT_STARTDATE, MT5_CHUNK_SIZE)
-
-while len(rates) < MAX_DATA_LENGTH:
-    rates = np.concatenate((rates, mt5.copy_rates_from(INPUT_SYMBOL, INPUT_TIMEFRAME, rates[0]['time'] - 100, MT5_CHUNK_SIZE)))
-
-err=mt5.last_error()
-mt5.shutdown()
-
-print('ERROR', err)
-
-savez_compressed(INPUT_SYMBOL + '_'+mt5.TIMEFRAME_M15 +
-                 '_' + MAX_DATA_LENGTH + '.npz', rates)
+models = [tf.keras.models.load_model('model_0'),
+          tf.keras.models.load_model('model_1'),
+          tf.keras.models.load_model('model_2'),
+          tf.keras.models.load_model('model_3'),
+          tf.keras.models.load_model('model_4'),
+          tf.keras.models.load_model('model_5'),
+          tf.keras.models.load_model('model_6'),
+          tf.keras.models.load_model('model_7'),
+          tf.keras.models.load_model('model_8'),
+          tf.keras.models.load_model('model_9'),
+          tf.keras.models.load_model('model_10'),
+          tf.keras.models.load_model('model_11'),
+          tf.keras.models.load_model('model_12'),
+          tf.keras.models.load_model('model_13')]
