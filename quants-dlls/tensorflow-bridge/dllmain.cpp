@@ -1,24 +1,26 @@
 // dllmain.cpp : Defines the entry point for the DLL application.
 
-#include "pch.h"
-
 #include <Python.h>
+
 #include <cstring>
 #include <iostream>
 #include <string>
+
+#include "pch.h"
+
 
 using namespace std;
 
 #pragma pack(4)
 struct MqlRates {
-  INT64 time;         // Period start time
-  double open;        // Open price
-  double high;        // The highest price of the period
-  double low;         // The lowest price of the period
-  double close;       // Close price
-  UINT64 tick_volume; // Tick volume
-  INT32 spread;       // Spread
-  UINT64 real_volume; // Trade volume
+  INT64  time;         // Period start time
+  double open;         // Open price
+  double high;         // The highest price of the period
+  double low;          // The lowest price of the period
+  double close;        // Close price
+  UINT64 tick_volume;  // Tick volume
+  INT32  spread;       // Spread
+  UINT64 real_volume;  // Trade volume
 };
 
 // Create some Python objects that will later be assigned values.
@@ -27,7 +29,8 @@ PyObject *pName, *pModule, *pDict, *pFunc, *pArgs, *pValue;
 // Initialize the Python interpreter.
 void InitPython() {
   Py_Initialize();
-  PySys_SetPath(L"C:\\Program Files\\Python38;\
+  PySys_SetPath(
+    L"C:\\Program Files\\Python38;\
 C:\\Program Files\\Python38\\DLLs;\
 C:\\Program Files\\Python38\\Lib;\
 C:\\Program Files\\Python38\\Lib\\site-packages;\
@@ -82,14 +85,12 @@ __declspec(dllexport) int TB_Init() {
   // Import the file as a Python module.
   pModule = PyImport_ImportModule("etfc-prod");
 
-  if (pModule == NULL)
-    return -1000;
+  if (pModule == NULL) return -1000;
 
   // Create a dictionary for the contents of the module.
   pDict = PyModule_GetDict(pModule);
 
-  if (pDict == NULL)
-    return -2000;
+  if (pDict == NULL) return -2000;
 
   return 0;
 }
@@ -117,13 +118,7 @@ __declspec(dllexport) int TB_Init() {
 //   return resultCode;
 // }
 
-int IMAGE_LENGTH_M15 = 48 + 5;
-int IMAGE_LENGTH_H1 = 48 + 5;
-int IMAGE_LENGTH_H4 = 24 + 5;
-int IMAGE_LENGTH_M5 = 24 + 5;
-int IMAGE_LENGTH_D1 = 7 + 5;
-
-PyObject *CopyRatesToList(char *errorBuffer, MqlRates *rates, int size) {
+PyObject *CopyRatesToList(char *errorBuffer, MqlRates *rates, INT32 size) {
   PyObject *listObj = PyList_New(size);
 
   if (!listObj) {
@@ -133,8 +128,8 @@ PyObject *CopyRatesToList(char *errorBuffer, MqlRates *rates, int size) {
   }
 
   for (unsigned int i = 0; i < size; ++i) {
-    MqlRates rt = rates[i];
-    PyObject* pRate = PyList_New(6);
+    MqlRates  rt    = rates[i];
+    PyObject *pRate = PyList_New(6);
     // PyObject *pRate = PyTuple_New(6);
 
     if (!pRate) {
@@ -163,32 +158,39 @@ PyObject *CopyRatesToList(char *errorBuffer, MqlRates *rates, int size) {
   return listObj;
 }
 
-__declspec(dllexport) int TB_Predict(char *errorBuffer, MqlRates *ratesM5,
-                                     MqlRates *ratesM15, MqlRates *ratesH1,
-                                     MqlRates *ratesH4, MqlRates *ratesD1) {
+__declspec(dllexport) int TB_Predict(char *    errorBuffer,
+                                     MqlRates *ratesM5,
+                                     INT32     iml_m5,
+                                     MqlRates *ratesM15,
+                                     INT32     iml_m15,
+                                     MqlRates *ratesH1,
+                                     INT32     iml_h1,
+                                     MqlRates *ratesH4,
+                                     INT32     iml_h4,
+                                     MqlRates *ratesD1,
+                                     INT32     iml_d1) {
   // Get the add method from the dictionary.
   pFunc = PyDict_GetItemString(pDict, "con_predict");
 
   pArgs = PyTuple_New(5);
 
   // Set the Python int as the first and second arguments to the method.
-  PyTuple_SetItem(pArgs, 0, CopyRatesToList(errorBuffer, ratesM5, IMAGE_LENGTH_M5));
-  PyTuple_SetItem(pArgs, 1, CopyRatesToList(errorBuffer, ratesM15, IMAGE_LENGTH_M15));
-  PyTuple_SetItem(pArgs, 2, CopyRatesToList(errorBuffer, ratesH1, IMAGE_LENGTH_H1));
-  PyTuple_SetItem(pArgs, 3, CopyRatesToList(errorBuffer, ratesH4, IMAGE_LENGTH_H4));
-  PyTuple_SetItem(pArgs, 4, CopyRatesToList(errorBuffer, ratesD1, IMAGE_LENGTH_D1));
+  PyTuple_SetItem(pArgs, 0, CopyRatesToList(errorBuffer, ratesM5, iml_m5));
+  PyTuple_SetItem(pArgs, 1, CopyRatesToList(errorBuffer, ratesM15, iml_m15));
+  PyTuple_SetItem(pArgs, 2, CopyRatesToList(errorBuffer, ratesH1, iml_h1));
+  PyTuple_SetItem(pArgs, 3, CopyRatesToList(errorBuffer, ratesH4, iml_h4));
+  PyTuple_SetItem(pArgs, 4, CopyRatesToList(errorBuffer, ratesD1, iml_d1));
 
   // Call the function with the arguments.
   PyObject *pResult = PyObject_CallObject(pFunc, pArgs);
 
   // Print a message if calling the method failed.
-  if (pResult == NULL)
-    return -4000;
+  if (pResult == NULL) return -4000;
 
-  int resultCode = -1;
+  int       resultCode = -1;
   PyObject *pErrorText;
   if (PyArg_ParseTuple(pResult, "iO", &resultCode, &pErrorText)) {
-    Py_ssize_t size;
+    Py_ssize_t  size;
     const char *errorText = PyUnicode_AsUTF8AndSize(pErrorText, &size);
 
     strcpy_s(errorBuffer, size + 1, errorText);

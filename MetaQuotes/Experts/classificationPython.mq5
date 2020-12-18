@@ -12,7 +12,7 @@
 #import "C:\MetaQuotes\MQL5\Libraries\Kel\tfbridge.dll"
 int TB_Init();
 int TB_Deinit();
-int TB_Predict(char&[], MqlRates&[], MqlRates&[], MqlRates&[], MqlRates&[], MqlRates&[]);
+int TB_Predict(char&[], MqlRates&[], int, MqlRates&[], int, MqlRates&[], int, MqlRates&[], int, MqlRates&[], int);
 #import
 
 //+------------------------------------------------------------------+
@@ -46,18 +46,18 @@ void OnTick() {
   CheckForOpen();
 }
 
-double TRADE_VOLUME = 0.02;
-double BASERATE     = 0.0008;
-double TARGET_TP    = 3;
-double TARGET_SL    = 2;
-double RATE_TP      = BASERATE * TARGET_TP;
-double RATE_SL      = BASERATE * TARGET_SL;
+input double TRADE_VOLUME = 0.02;
+input double BASERATE     = 0.0008;
+input double TARGET_TP    = 3;
+input double TARGET_SL    = 2;
+double       RATE_TP      = BASERATE * TARGET_TP;
+double       RATE_SL      = BASERATE * TARGET_SL;
 
-int IMAGE_LENGTH_M15 = 48 + 5;
-int IMAGE_LENGTH_H1  = 48 + 5;
-int IMAGE_LENGTH_H4  = 24 + 5;
-int IMAGE_LENGTH_M5  = 24 + 5;
-int IMAGE_LENGTH_D1  = 7 + 5;
+int IMAGE_LENGTH_M15 = 24 + 5;
+int IMAGE_LENGTH_H1  = 24 + 5;
+int IMAGE_LENGTH_H4  = 12 + 5;
+int IMAGE_LENGTH_M5  = 12 + 5;
+int IMAGE_LENGTH_D1  = 10 + 5;
 
 datetime latest_candle_time_checked_open = 0;
 //+------------------------------------------------------------------+
@@ -109,18 +109,21 @@ void CheckForOpen(void) {
   ENUM_ORDER_TYPE signal = WRONG_VALUE;
 
   char buffer[10240];
-  int  predict_result = TB_Predict(buffer, rt_m5, rt_m15, rt_h1, rt_h4, rt_d1);
+  int  predict_result = TB_Predict(buffer, rt_m5, IMAGE_LENGTH_M5, rt_m15, IMAGE_LENGTH_M15, rt_h1, IMAGE_LENGTH_H1,
+                                  rt_h4, IMAGE_LENGTH_H4, rt_d1, IMAGE_LENGTH_D1);
 
   Print("PREDICT RESULT ", predict_result, " ", CharArrayToString(buffer));
 
-  if (predict_result < 0) {
+  if (predict_result <= 0) {
     return;
   }
 
-  if (predict_result == 1)
-    signal = ORDER_TYPE_BUY;
-  else if (predict_result == 2)
-    signal = ORDER_TYPE_SELL;
+  // if (predict_result == 1)
+  //   signal = ORDER_TYPE_BUY;
+  // else if (predict_result == 2)
+  //   signal = ORDER_TYPE_SELL;
+
+  signal = ORDER_TYPE_BUY;
 
   //--- additional checks
   if (signal == WRONG_VALUE) return;
@@ -132,11 +135,13 @@ void CheckForOpen(void) {
 
   if (signal == ORDER_TYPE_SELL) {
     price = SymbolInfoDouble(_Symbol, SYMBOL_BID);
-    tp    = NormalizeDouble((1 - RATE_TP) * price, _Digits);
+    tp    = NormalizeDouble((1 - BASERATE * predict_result) * price, _Digits);
+    // tp    = NormalizeDouble((1 - RATE_TP) * price, _Digits);
     sl    = NormalizeDouble((1 + RATE_SL) * price, _Digits);
   } else {
     price = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
-    tp    = NormalizeDouble((1 + RATE_TP) * price, _Digits);
+    tp    = NormalizeDouble((1 + BASERATE * predict_result) * price, _Digits);
+    // tp    = NormalizeDouble((1 + RATE_TP) * price, _Digits);
     sl    = NormalizeDouble((1 - RATE_SL) * price, _Digits);
   }
 
