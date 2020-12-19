@@ -244,14 +244,17 @@ def con_predict(raw_data_m5, raw_data_m15, raw_data_h1, raw_data_h4, raw_data_d1
         pred_buy = preds.flat[7:].sum()
         pred_sell = preds.flat[:7].sum()
 
+        # buy_condition = pred_buy > pred_sell
         buy_condition = (pred_buy > pred_sell + THRESOLD_DIFF) & (pred_buy >= TARGET)
+        sell_condition = (pred_sell > pred_buy + THRESOLD_DIFF) & (pred_sell >= TARGET)
 
-        if (buy_condition):
-            return pred_buy, str(raw_data_m5[-1][5]) + " " + str(raw_data_m15[-1][5]) + " " + str(raw_data_h1[-1][5]) 
-            # return 1, str(datetime.fromtimestamp(raw_data_m5[-1][5])) + " " + str(datetime.fromtimestamp(raw_data_m15[-1][5]))
+        if buy_condition:
+            return 1, str(pred_buy)
 
-        # return 0, str(datetime.fromtimestamp(raw_data_m5[-1][5])) + " " + str(datetime.fromtimestamp(raw_data_m15[-1][5]))
-        return 0, str(raw_data_m5[-1][5]) + " " + str(raw_data_m15[-1][5]) + " " + str(raw_data_h1[-1][5])  + " " + str(raw_data_h4[-1][5])  + " " + str(raw_data_d1[-1][5]) 
+        if sell_condition:
+            return 2, str(pred_sell)
+            
+        return 0, ""
     except Exception as err:
         return -5, "Error making decision " + str(err)
 
